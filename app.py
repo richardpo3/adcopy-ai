@@ -82,7 +82,7 @@ st.markdown("""
 
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .stApp { background-color: #0a0a0f; }
-.block-container { padding: 0 2rem 4rem 2rem; max-width: 820px; }
+.block-container { padding: 0 2rem 4rem 2rem; max-width: 1000px; }
 
 /* Nav */
 .nav {
@@ -124,7 +124,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     margin-bottom: 1.5rem;
 }
 .hero-title {
-    font-size: 3.4rem;
+    font-size: 4rem;
     font-weight: 900;
     color: #f1f5f9;
     line-height: 1.1;
@@ -137,10 +137,10 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     -webkit-text-fill-color: transparent;
 }
 .hero-sub {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #64748b;
     line-height: 1.7;
-    max-width: 560px;
+    max-width: 620px;
     margin: 0 auto 2.5rem auto;
 }
 
@@ -400,7 +400,7 @@ if st.session_state["page"] == "landing":
                 </ul>
             </div>
             <div class="plan pro">
-                <div class="plan-name">Pro</div>
+                <div class="plan-name">Pro — Most Popular</div>
                 <div class="plan-price">$9<span>/month</span></div>
                 <div class="plan-desc">For sellers who run ads every week</div>
                 <ul class="plan-features">
@@ -408,6 +408,18 @@ if st.session_state["page"] == "landing":
                     <li>5 angles per generation</li>
                     <li>Facebook + Instagram copy</li>
                     <li>Cancel anytime</li>
+                </ul>
+            </div>
+            <div class="plan">
+                <div class="plan-name">Agency</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <div class="plan-desc">For teams and multi-brand sellers</div>
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>Bulk generation (5 products at once)</li>
+                    <li>Copy history — save past ads</li>
+                    <li>Up to 5 users</li>
+                    <li>Priority support</li>
                 </ul>
             </div>
         </div>
