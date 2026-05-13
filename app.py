@@ -430,6 +430,34 @@ if st.session_state["page"] == "landing":
         st.session_state["page"] = "generator"
         st.rerun()
 
+    st.markdown('<hr class="divider" style="margin: 1rem 0;">', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="how-section">
+        <div class="how-title">Common questions</div>
+        <div class="step" style="text-align:left; margin-bottom: 1rem;">
+            <div class="step-title">Will this work for my product?</div>
+            <div class="step-desc" style="margin-top:0.4rem;">Yes. It works for any physical or digital product. Skincare, kitchen tools, clothing, courses, software — if you can describe it in one sentence, we can write ads for it.</div>
+        </div>
+        <div class="step" style="text-align:left; margin-bottom: 1rem;">
+            <div class="step-title">Is this just ChatGPT?</div>
+            <div class="step-desc" style="margin-top:0.4rem;">No. The AI is trained specifically on direct-response ad copy. It writes in 5 proven angles that are tested to convert — not generic marketing fluff. You get copy that sounds human and is ready to run.</div>
+        </div>
+        <div class="step" style="text-align:left; margin-bottom: 1rem;">
+            <div class="step-title">Do I need to edit the ads before using them?</div>
+            <div class="step-desc" style="margin-top:0.4rem;">Usually not. Most users copy straight into Ads Manager. You can tweak if you want, but they're written to be ready out of the box.</div>
+        </div>
+        <div class="step" style="text-align:left; margin-bottom: 1rem;">
+            <div class="step-title">Can I cancel my subscription?</div>
+            <div class="step-desc" style="margin-top:0.4rem;">Yes, anytime. No contracts, no questions asked. Cancel from your billing portal in one click.</div>
+        </div>
+        <div class="step" style="text-align:left;">
+            <div class="step-title">Why not just use a freelance copywriter?</div>
+            <div class="step-desc" style="margin-top:0.4rem;">A good copywriter charges $50-200 per ad. We give you 5 variations in 15 seconds for $9 a month. Use us for first drafts and volume — hire a copywriter when you're scaling a winner.</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # ════════════════════════════════════════════════════════════════════════════════
 # GENERATOR PAGE
