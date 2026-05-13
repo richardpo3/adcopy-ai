@@ -622,76 +622,17 @@ elif st.session_state["page"] == "generator":
         if can_generate:
             tab1, tab2 = st.tabs(["Type your product info", "Upload your product image"])
 
-        with tab1:
-            with st.form("ad_form"):
-                product = st.text_input("Product name", placeholder="e.g. PeelEase 3-in-1 Peeler Set")
-                audience = st.text_input("Target audience", placeholder="e.g. home cooks who hate meal prep")
-                benefit = st.text_input("Key benefit", placeholder="e.g. peels faster with no hand strain")
-                submitted = st.form_submit_button("Generate 5 Ad Variations")
+            with tab1:
+                with st.form("ad_form"):
+                    product = st.text_input("Product name", placeholder="e.g. PeelEase 3-in-1 Peeler Set")
+                    audience = st.text_input("Target audience", placeholder="e.g. home cooks who hate meal prep")
+                    benefit = st.text_input("Key benefit", placeholder="e.g. peels faster with no hand strain")
+                    submitted = st.form_submit_button("Generate 5 Ad Variations")
 
-            if submitted:
-                if not product or not audience or not benefit:
-                    st.warning("Please fill in all three fields.")
-                else:
-                    with st.spinner("Writing your ads..."):
-                        prompt = f"Product: {product}\nTarget audience: {audience}\nKey benefit: {benefit}\n\nWrite 5 ad copy variations."
-                        response = client.chat.completions.create(
-                            model="llama-3.3-70b-versatile",
-                            max_tokens=1024,
-                            messages=[
-                                {"role": "system", "content": SYSTEM_PROMPT},
-                                {"role": "user", "content": prompt},
-                            ],
-                        )
-                        result = response.choices[0].message.content
-                        st.session_state["last_result"] = result
-                        st.session_state["last_product"] = product
-                        st.session_state["last_audience"] = audience
-                        st.session_state["last_benefit"] = benefit
-                        st.session_state["last_image"] = None
-                        st.session_state["uploaded_image"] = None
-                        if not is_pro:
-                            st.session_state["generations_used"] += 1
-                        st.rerun()
-
-        with tab2:
-            uploaded_file = st.file_uploader("Upload your product image", type=["jpg", "jpeg", "png", "webp"])
-            if uploaded_file:
-                st.image(uploaded_file, width=300)
-            if st.button("Analyze Image and Generate Ads", disabled=not uploaded_file):
-                with st.spinner("Analyzing your image..."):
-                    try:
-                        import base64
-                        uploaded_file.seek(0)
-                        image_data = base64.b64encode(uploaded_file.read()).decode("utf-8")
-                        ext = uploaded_file.type
-
-                        vision_response = openai_client.chat.completions.create(
-                            model="gpt-4o",
-                            messages=[
-                                {
-                                    "role": "user",
-                                    "content": [
-                                        {
-                                            "type": "image_url",
-                                            "image_url": {"url": f"data:{ext};base64,{image_data}"}
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "Analyze this product image. Return ONLY in this exact format with no extra text:\nProduct: [product name]\nAudience: [who this is for]\nBenefit: [main benefit or value]"
-                                        }
-                                    ]
-                                }
-                            ],
-                            max_tokens=150
-                        )
-
-                        analysis = vision_response.choices[0].message.content
-                        lines = analysis.strip().split("\n")
-                        product = lines[0].replace("Product:", "").strip()
-                        audience = lines[1].replace("Audience:", "").strip()
-                        benefit = lines[2].replace("Benefit:", "").strip()
-
+                if submitted:
+                    if not product or not audience or not benefit:
+                        st.warning("Please fill in all three fields.")
+                    else:
                         with st.spinner("Writing your ads..."):
                             prompt = f"Product: {product}\nTarget audience: {audience}\nKey benefit: {benefit}\n\nWrite 5 ad copy variations."
                             response = client.chat.completions.create(
@@ -703,18 +644,77 @@ elif st.session_state["page"] == "generator":
                                 ],
                             )
                             result = response.choices[0].message.content
-                            uploaded_file.seek(0)
                             st.session_state["last_result"] = result
                             st.session_state["last_product"] = product
                             st.session_state["last_audience"] = audience
                             st.session_state["last_benefit"] = benefit
                             st.session_state["last_image"] = None
-                            st.session_state["uploaded_image"] = uploaded_file.read()
+                            st.session_state["uploaded_image"] = None
                             if not is_pro:
                                 st.session_state["generations_used"] += 1
                             st.rerun()
-                    except Exception as e:
-                        st.error(f"Could not analyze image: {e}")
+
+            with tab2:
+                uploaded_file = st.file_uploader("Upload your product image", type=["jpg", "jpeg", "png", "webp"])
+                if uploaded_file:
+                    st.image(uploaded_file, width=300)
+                if st.button("Analyze Image and Generate Ads", disabled=not uploaded_file):
+                    with st.spinner("Analyzing your image..."):
+                        try:
+                            import base64
+                            uploaded_file.seek(0)
+                            image_data = base64.b64encode(uploaded_file.read()).decode("utf-8")
+                            ext = uploaded_file.type
+
+                            vision_response = openai_client.chat.completions.create(
+                                model="gpt-4o",
+                                messages=[
+                                    {
+                                        "role": "user",
+                                        "content": [
+                                            {
+                                                "type": "image_url",
+                                                "image_url": {"url": f"data:{ext};base64,{image_data}"}
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "Analyze this product image. Return ONLY in this exact format with no extra text:\nProduct: [product name]\nAudience: [who this is for]\nBenefit: [main benefit or value]"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                max_tokens=150
+                            )
+
+                            analysis = vision_response.choices[0].message.content
+                            lines = analysis.strip().split("\n")
+                            product = lines[0].replace("Product:", "").strip()
+                            audience = lines[1].replace("Audience:", "").strip()
+                            benefit = lines[2].replace("Benefit:", "").strip()
+
+                            with st.spinner("Writing your ads..."):
+                                prompt = f"Product: {product}\nTarget audience: {audience}\nKey benefit: {benefit}\n\nWrite 5 ad copy variations."
+                                response = client.chat.completions.create(
+                                    model="llama-3.3-70b-versatile",
+                                    max_tokens=1024,
+                                    messages=[
+                                        {"role": "system", "content": SYSTEM_PROMPT},
+                                        {"role": "user", "content": prompt},
+                                    ],
+                                )
+                                result = response.choices[0].message.content
+                                uploaded_file.seek(0)
+                                st.session_state["last_result"] = result
+                                st.session_state["last_product"] = product
+                                st.session_state["last_audience"] = audience
+                                st.session_state["last_benefit"] = benefit
+                                st.session_state["last_image"] = None
+                                st.session_state["uploaded_image"] = uploaded_file.read()
+                                if not is_pro:
+                                    st.session_state["generations_used"] += 1
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"Could not analyze image: {e}")
 
         else:
             st.markdown("""
