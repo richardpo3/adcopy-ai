@@ -322,6 +322,22 @@ header {visibility: hidden;}
 [data-testid="stDecoration"] {display: none;}
 [data-testid="stStatusWidget"] {display: none;}
 .stDeployButton {display: none;}
+
+@media (max-width: 768px) {
+    .block-container { padding: 0 1rem 3rem 1rem; }
+    .hero { padding: 2rem 0.5rem 1.5rem 0.5rem; }
+    .hero-title { font-size: 2.2rem; }
+    .hero-sub { font-size: 0.95rem; }
+    .steps-row { flex-direction: column; }
+    .pricing-row { flex-direction: column; }
+    .nav { padding: 1rem 0; }
+    .nav-logo { font-size: 0.95rem; }
+    .gen-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .result-card { padding: 1rem; }
+    .plan { margin-bottom: 0.5rem; }
+    .step { margin-bottom: 0.5rem; }
+    .stFormSubmitButton > button, .stButton > button { font-size: 0.9rem !important; padding: 0.65rem 1rem !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
