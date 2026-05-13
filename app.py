@@ -315,6 +315,22 @@ if session_id and not st.session_state["pro"]:
     except Exception:
         pass
 
+# ── Pro button (always visible if not pro) ────────────────────────────────────
+if not st.session_state["pro"]:
+    if st.button("Upgrade to Pro — $9/month"):
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{"price": stripe_price_id, "quantity": 1}],
+                mode="subscription",
+                success_url=f"{APP_URL}/?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=APP_URL,
+            )
+            st.markdown(f'<meta http-equiv="refresh" content="0; url={checkout_session.url}">', unsafe_allow_html=True)
+            st.markdown(f'[Click here if not redirected]({checkout_session.url})')
+        except Exception as e:
+            st.error(f"Could not start checkout: {e}")
+
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown('<div class="hero-badge">AI-Powered Ad Copy</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">Write <span>converting ads</span><br>in seconds.</div>', unsafe_allow_html=True)
