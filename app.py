@@ -2,6 +2,7 @@ import os
 import stripe
 import streamlit as st
 from groq import Groq
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,8 +23,13 @@ stripe_agency_price_id = st.secrets.get("STRIPE_AGENCY_PRICE_ID", None) if hasat
 if not stripe_agency_price_id:
     stripe_agency_price_id = os.getenv("STRIPE_AGENCY_PRICE_ID")
 
+openai_key = st.secrets.get("OPENAI_API_KEY", None) if hasattr(st, "secrets") else None
+if not openai_key:
+    openai_key = os.getenv("OPENAI_API_KEY")
+
 stripe.api_key = stripe_key
 client = Groq(api_key=api_key)
+openai_client = OpenAI(api_key=openai_key)
 
 FREE_LIMIT = 3
 APP_URL = "https://adcopy-ai.streamlit.app"
@@ -522,6 +528,10 @@ elif st.session_state["page"] == "generator":
                     )
                     result = response.choices[0].message.content
                     st.session_state["last_result"] = result
+                    st.session_state["last_product"] = product
+                    st.session_state["last_audience"] = audience
+                    st.session_state["last_benefit"] = benefit
+                    st.session_state["last_image"] = None
                     if not is_pro:
                         st.session_state["generations_used"] += 1
                     st.rerun()
@@ -541,6 +551,32 @@ elif st.session_state["page"] == "generator":
         st.markdown('<div class="result-card">', unsafe_allow_html=True)
         st.markdown(st.session_state["last_result"])
         st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        st.markdown('<div class="section-label" style="font-size:0.72rem;font-weight:700;color:#64748b;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.8rem;">Ad image</div>', unsafe_allow_html=True)
+
+        if st.button("Generate Ad Image"):
+            product_info = st.session_state.get("last_product", "a product")
+            audience_info = st.session_state.get("last_audience", "shoppers")
+            benefit_info = st.session_state.get("last_benefit", "great value")
+            image_prompt = f"Professional Facebook ad image for {product_info}. Target audience: {audience_info}. Key benefit: {benefit_info}. Clean product photography style, bright and eye-catching, white or neutral background, no text overlay, commercial quality."
+            with st.spinner("Generating image..."):
+                try:
+                    response = openai_client.images.generate(
+                        model="dall-e-3",
+                        prompt=image_prompt,
+                        size="1024x1024",
+                        quality="standard",
+                        n=1,
+                    )
+                    image_url = response.data[0].url
+                    st.session_state["last_image"] = image_url
+                except Exception as e:
+                    st.error(f"Image generation failed: {e}")
+
+        if st.session_state.get("last_image"):
+            st.image(st.session_state["last_image"], use_column_width=True)
+            st.markdown(f'<a href="{st.session_state["last_image"]}" target="_blank" style="color:#6366f1;font-size:0.85rem;">Open full size</a>', unsafe_allow_html=True)
 
         if not is_pro and gens_used >= FREE_LIMIT:
             st.markdown('<hr class="divider">', unsafe_allow_html=True)
