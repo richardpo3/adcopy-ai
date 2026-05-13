@@ -638,9 +638,23 @@ elif st.session_state["page"] == "generator":
             st.image(st.session_state["uploaded_image"], width=280)
             st.markdown(f'<div style="font-size:0.8rem;color:#64748b;margin-top:0.4rem;">Detected: <span style="color:#94a3b8">{st.session_state.get("last_product","")}</span> — {st.session_state.get("last_benefit","")}</div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="result-card">', unsafe_allow_html=True)
-        st.markdown(st.session_state["last_result"])
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Parse and display each variation with a copy button
+        raw = st.session_state["last_result"]
+        sections = [s.strip() for s in raw.split("---") if s.strip()]
+        if len(sections) >= 5:
+            for section in sections:
+                if not section.startswith("###"):
+                    continue
+                st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                st.markdown(section)
+                st.markdown('</div>', unsafe_allow_html=True)
+                # Strip markdown for clean copy
+                clean = section.replace("**", "").replace("###", "").strip()
+                st.code(clean, language=None)
+        else:
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown(raw)
+            st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
         st.markdown('<div class="section-label" style="font-size:0.72rem;font-weight:700;color:#64748b;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.8rem;">Ad image</div>', unsafe_allow_html=True)
