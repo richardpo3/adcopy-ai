@@ -18,6 +18,10 @@ stripe_price_id = st.secrets.get("STRIPE_PRICE_ID", None) if hasattr(st, "secret
 if not stripe_price_id:
     stripe_price_id = os.getenv("STRIPE_PRICE_ID")
 
+stripe_agency_price_id = st.secrets.get("STRIPE_AGENCY_PRICE_ID", None) if hasattr(st, "secrets") else None
+if not stripe_agency_price_id:
+    stripe_agency_price_id = os.getenv("STRIPE_AGENCY_PRICE_ID")
+
 stripe.api_key = stripe_key
 client = Groq(api_key=api_key)
 
@@ -319,11 +323,11 @@ if session_id and not st.session_state["pro"]:
     except Exception:
         pass
 
-def start_checkout():
+def start_checkout(price_id):
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            line_items=[{"price": stripe_price_id, "quantity": 1}],
+            line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             success_url=f"{APP_URL}/?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=APP_URL,
@@ -426,9 +430,17 @@ if st.session_state["page"] == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Get Started Free"):
-        st.session_state["page"] = "generator"
-        st.rerun()
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Get Started Free", key="free_btn"):
+            st.session_state["page"] = "generator"
+            st.rerun()
+    with col2:
+        if st.button("Get Pro — $9/month", key="pro_btn"):
+            start_checkout(stripe_price_id)
+    with col3:
+        if st.button("Get Agency — $29/month", key="agency_btn"):
+            start_checkout(stripe_agency_price_id)
 
     st.markdown('<hr class="divider" style="margin: 1rem 0;">', unsafe_allow_html=True)
 
@@ -523,7 +535,7 @@ elif st.session_state["page"] == "generator":
         </div>
         """, unsafe_allow_html=True)
         if st.button("Upgrade to Pro"):
-            start_checkout()
+            start_checkout(stripe_price_id)
 
     if st.session_state["last_result"]:
         st.markdown('<div class="result-card">', unsafe_allow_html=True)
@@ -533,4 +545,4 @@ elif st.session_state["page"] == "generator":
         if not is_pro and gens_used >= FREE_LIMIT:
             st.markdown('<hr class="divider">', unsafe_allow_html=True)
             if st.button("Upgrade to Pro — $9/month"):
-                start_checkout()
+                start_checkout(stripe_price_id)
