@@ -250,6 +250,14 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .footer { text-align: center; color: #3f4151; font-size: 0.78rem; margin-top: 3rem; }
 
 .stAlert { background-color: #1e1f2b !important; border: 1px solid #2a2b36 !important; color: #94a3b8 !important; border-radius: 10px !important; }
+
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+[data-testid="stToolbar"] {display: none;}
+[data-testid="stDecoration"] {display: none;}
+[data-testid="stStatusWidget"] {display: none;}
+.stDeployButton {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
