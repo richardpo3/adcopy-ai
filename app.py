@@ -228,8 +228,10 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     padding: 1.8rem;
 }
 .plan.pro {
-    border-color: rgba(99,102,241,0.4);
-    background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(124,58,237,0.06));
+    border-color: #6366f1;
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(124,58,237,0.1));
+    box-shadow: 0 0 24px rgba(99,102,241,0.2);
+    transform: scale(1.02);
 }
 .plan-name { font-size: 0.78rem; font-weight: 700; color: #64748b; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.8rem; }
 .plan-price { font-size: 2.2rem; font-weight: 900; color: #f1f5f9; margin-bottom: 0.2rem; }
@@ -398,9 +400,45 @@ if st.session_state["page"] == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Generate My Ads — It's Free"):
+    st.markdown("""
+    <style>
+    div[data-testid="stButton"] > button[kind="secondary"], div[data-testid="stButton"] > button {
+        font-size: 1.15rem !important;
+        padding: 1rem 2.5rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    if st.button("Generate My Ads — It's Free", key="hero_cta"):
         st.session_state["page"] = "generator"
         st.rerun()
+
+    st.markdown('<hr class="divider" style="margin: 2.5rem 0 1.5rem 0;">', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.72rem;font-weight:700;color:#64748b;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">Live example — PeelEase 3-in-1 Peeler</div>', unsafe_allow_html=True)
+    st.markdown("""
+<div class="result-card" style="margin-bottom:2rem;">
+
+### 1. Curiosity Hook
+**Headline:** Why Are Home Cooks Obsessed With This?
+
+Most peelers tear skin and take forever. This one glides through in one pass — no strain, no mess. Try it today.
+
+---
+
+### 2. Problem → Solution
+**Headline:** Tired of Meal Prep Taking Forever?
+
+The PeelEase 3-in-1 cuts your prep time in half. One tool, three functions, zero frustration. Get yours now.
+
+---
+
+### 3. Social Proof
+**Headline:** Home Cooks Love This Peeler Set
+
+Thousands of home cooks have ditched their old peelers for this. Once you try it, you'll wonder how you managed without it. Shop now.
+
+</div>
+    """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider" style="margin: 2rem 0;">', unsafe_allow_html=True)
 
