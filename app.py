@@ -1,16 +1,29 @@
 import os
+import stripe
 import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use Streamlit secrets in production, .env locally
 api_key = st.secrets.get("GROQ_API_KEY", None) if hasattr(st, "secrets") else None
 if not api_key:
     api_key = os.getenv("GROQ_API_KEY")
 
+stripe_key = st.secrets.get("STRIPE_SECRET_KEY", None) if hasattr(st, "secrets") else None
+if not stripe_key:
+    stripe_key = os.getenv("STRIPE_SECRET_KEY")
+
+stripe_price_id = st.secrets.get("STRIPE_PRICE_ID", None) if hasattr(st, "secrets") else None
+if not stripe_price_id:
+    stripe_price_id = os.getenv("STRIPE_PRICE_ID")
+
+stripe.api_key = stripe_key
+
 client = Groq(api_key=api_key)
+
+FREE_LIMIT = 3
+APP_URL = "https://adcopy-ai.streamlit.app"
 
 SYSTEM_PROMPT = """You are an expert Facebook and Instagram ad copywriter.
 When given a product, target audience, and key benefit — write exactly 5 ad copy variations.
@@ -209,6 +222,20 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     margin-bottom: 1rem;
 }
 
+.upgrade-box {
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(124,58,237,0.1));
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.upgrade-title { font-size: 1.1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 0.4rem; }
+.upgrade-sub { font-size: 0.88rem; color: #94a3b8; margin-bottom: 1.2rem; }
+.upgrade-price { font-size: 1.8rem; font-weight: 800; color: #6366f1; margin-bottom: 0.3rem; }
+.upgrade-price-sub { font-size: 0.78rem; color: #64748b; margin-bottom: 1.2rem; }
+
 .stTextInput > label {
     color: #94a3b8 !important;
     font-size: 0.85rem !important;
@@ -271,6 +298,23 @@ header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+# ── Session state init ─────────────────────────────────────────────────────────
+if "generations_used" not in st.session_state:
+    st.session_state["generations_used"] = 0
+if "pro" not in st.session_state:
+    st.session_state["pro"] = False
+
+# ── Check for successful payment return ───────────────────────────────────────
+params = st.query_params
+session_id = params.get("session_id")
+if session_id and not st.session_state["pro"]:
+    try:
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        if checkout_session.payment_status == "paid":
+            st.session_state["pro"] = True
+    except Exception:
+        pass
+
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown('<div class="hero-badge">AI-Powered Ad Copy</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">Write <span>converting ads</span><br>in seconds.</div>', unsafe_allow_html=True)
@@ -279,7 +323,7 @@ st.markdown('<div class="hero-sub">Generate 5 Facebook & Instagram ad variations
 # ── Social proof bar ──────────────────────────────────────────────────────────
 st.markdown("""
 <div class="social-proof-bar">
-    <div class="sp-item"><span class="sp-dot">●</span><span><span class="sp-bold">Free</span> while in beta</span></div>
+    <div class="sp-item"><span class="sp-dot">●</span><span><span class="sp-bold">Free</span> to try</span></div>
     <div class="sp-item"><span class="sp-dot">●</span><span>No signup needed</span></div>
     <div class="sp-item"><span class="sp-dot">●</span><span>Works for any product</span></div>
 </div>
@@ -305,45 +349,80 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 # ── Generate form ─────────────────────────────────────────────────────────────
-st.markdown('<div class="section-label">Generate your ads</div>', unsafe_allow_html=True)
+gens_used = st.session_state["generations_used"]
+is_pro = st.session_state["pro"]
+remaining = max(0, FREE_LIMIT - gens_used)
 
-with st.form("ad_form"):
-    product = st.text_input("Product name", placeholder="e.g. PeelEase 3-in-1 Peeler Set")
-    audience = st.text_input("Target audience", placeholder="e.g. home cooks who hate meal prep")
-    benefit = st.text_input("Key benefit", placeholder="e.g. peels faster with no hand strain")
-    submitted = st.form_submit_button("Generate 5 Ad Variations")
+if not is_pro:
+    st.markdown(f'<div class="section-label">Generate your ads — {remaining} free {"generation" if remaining == 1 else "generations"} remaining</div>', unsafe_allow_html=True)
+else:
+    st.markdown('<div class="section-label">Generate your ads — Pro (unlimited)</div>', unsafe_allow_html=True)
 
-if submitted:
-    if not product or not audience or not benefit:
-        st.warning("Please fill in all three fields.")
-    else:
-        with st.spinner("Writing your ads..."):
-            prompt = f"Product: {product}\nTarget audience: {audience}\nKey benefit: {benefit}\n\nWrite 5 ad copy variations."
-            response = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                max_tokens=1024,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
+can_generate = is_pro or gens_used < FREE_LIMIT
+
+if can_generate:
+    with st.form("ad_form"):
+        product = st.text_input("Product name", placeholder="e.g. PeelEase 3-in-1 Peeler Set")
+        audience = st.text_input("Target audience", placeholder="e.g. home cooks who hate meal prep")
+        benefit = st.text_input("Key benefit", placeholder="e.g. peels faster with no hand strain")
+        submitted = st.form_submit_button("Generate 5 Ad Variations")
+
+    if submitted:
+        if not product or not audience or not benefit:
+            st.warning("Please fill in all three fields.")
+        else:
+            with st.spinner("Writing your ads..."):
+                prompt = f"Product: {product}\nTarget audience: {audience}\nKey benefit: {benefit}\n\nWrite 5 ad copy variations."
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    max_tokens=1024,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                )
+                result = response.choices[0].message.content
+                st.session_state["last_result"] = result
+                if not is_pro:
+                    st.session_state["generations_used"] += 1
+else:
+    st.markdown("""
+    <div class="upgrade-box">
+        <div class="upgrade-title">You've used your 3 free generations</div>
+        <div class="upgrade-sub">Upgrade to Pro for unlimited ad copy — any product, any time.</div>
+        <div class="upgrade-price">$9<span style="font-size:1rem;font-weight:500;color:#94a3b8">/month</span></div>
+        <div class="upgrade-price-sub">Cancel anytime</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Upgrade to Pro"):
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{"price": stripe_price_id, "quantity": 1}],
+                mode="subscription",
+                success_url=f"{APP_URL}/?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=APP_URL,
             )
-            result = response.choices[0].message.content
-            st.session_state["last_result"] = result
+            st.markdown(f'<meta http-equiv="refresh" content="0; url={checkout_session.url}">', unsafe_allow_html=True)
+            st.markdown(f'[Click here if not redirected]({checkout_session.url})')
+        except Exception as e:
+            st.error(f"Could not start checkout: {e}")
 
 if "last_result" in st.session_state:
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown('<div class="section-label">Your 5 ad variations</div>', unsafe_allow_html=True)
     st.markdown(st.session_state["last_result"])
 
-# ── Email capture ─────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="email-box">
-    <div class="email-title">Get early access updates</div>
-    <div class="email-sub">We're building image generation, saved history, and more. Join the waitlist to be first in line — free forever for early users.</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown(f'<a href="{WAITLIST_URL}" target="_blank"><button style="background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;font-weight:700;font-size:1rem;padding:0.75rem 2rem;border:none;border-radius:10px;width:100%;cursor:pointer;margin-top:1rem;">Join the Waitlist</button></a>', unsafe_allow_html=True)
+# ── Email capture / waitlist ───────────────────────────────────────────────────
+if not is_pro:
+    st.markdown("""
+    <div class="email-box">
+        <div class="email-title">Get early access updates</div>
+        <div class="email-sub">We're building image generation, saved history, and more. Join the waitlist to be first in line.</div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown(f'<a href="{WAITLIST_URL}" target="_blank"><button style="background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;font-weight:700;font-size:1rem;padding:0.75rem 2rem;border:none;border-radius:10px;width:100%;cursor:pointer;margin-top:1rem;">Join the Waitlist</button></a>', unsafe_allow_html=True)
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown('<div class="footer">AdCopy AI — Built for ecom sellers who move fast.</div>', unsafe_allow_html=True)
