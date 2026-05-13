@@ -26,25 +26,35 @@ Format your response EXACTLY like this for each variation:
 
 ### 1. Curiosity Hook
 **Headline:** [headline here]
-**Body:** [body copy here]
+
+[body copy here — 2-3 punchy sentences that expand on the headline, create desire, and end with a soft call to action]
 
 ### 2. Problem → Solution
 **Headline:** [headline here]
-**Body:** [body copy here]
+
+[body copy here]
 
 ### 3. Social Proof
 **Headline:** [headline here]
-**Body:** [body copy here]
+
+[body copy here]
 
 ### 4. Urgency / Scarcity
 **Headline:** [headline here]
-**Body:** [body copy here]
+
+[body copy here]
 
 ### 5. Direct Benefit
 **Headline:** [headline here]
-**Body:** [body copy here]
 
-Keep headlines under 10 words. Keep body under 30 words. Be punchy, direct, and conversion-focused."""
+[body copy here]
+
+Rules:
+- Headlines under 10 words, bold and punchy
+- Body is 2-3 sentences, conversational, no corporate speak
+- Each variation must feel completely different in tone and angle
+- End every body with a soft CTA like "Try it today", "Shop now", or "Get yours"
+- Write like a human, not a robot"""
 
 EXAMPLE_OUTPUT = """### 1. Curiosity Hook
 **Headline:** Why Are 12,000 Sellers Switching to This?
