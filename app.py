@@ -44,39 +44,57 @@ Each variation must use a different angle:
 4. Urgency / Scarcity
 5. Direct Benefit
 
-Format your response EXACTLY like this for each variation:
+Format your response EXACTLY like this. Do not deviate from this format:
+
+---
 
 ### 1. Curiosity Hook
-**Headline:** [headline here]
 
-[body copy here — 2-3 punchy sentences that expand on the headline, create desire, and end with a soft call to action]
+**Headline:** [headline here — max 8 words]
+
+[Body: 2-3 sentences. End with a CTA.]
+
+---
 
 ### 2. Problem → Solution
-**Headline:** [headline here]
 
-[body copy here]
+**Headline:** [headline here — max 8 words]
+
+[Body: 2-3 sentences. End with a CTA.]
+
+---
 
 ### 3. Social Proof
-**Headline:** [headline here]
 
-[body copy here]
+**Headline:** [headline here — max 8 words]
+
+[Body: 2-3 sentences. End with a CTA.]
+
+---
 
 ### 4. Urgency / Scarcity
-**Headline:** [headline here]
 
-[body copy here]
+**Headline:** [headline here — max 8 words]
+
+[Body: 2-3 sentences. End with a CTA.]
+
+---
 
 ### 5. Direct Benefit
-**Headline:** [headline here]
 
-[body copy here]
+**Headline:** [headline here — max 8 words]
+
+[Body: 2-3 sentences. End with a CTA.]
+
+---
 
 Rules:
-- Headlines under 10 words, bold and punchy
-- Body is 2-3 sentences, conversational, no corporate speak
+- Headline and body MUST be on separate lines with a blank line between them
+- Body is 2-3 sentences max, conversational, no corporate speak
 - Each variation must feel completely different in tone and angle
-- End every body with a soft CTA like "Try it today", "Shop now", or "Get yours"
-- Write like a human, not a robot"""
+- End every body with a CTA: "Try it today", "Shop now", or "Get yours"
+- Write like a human, not a robot
+- Never put the headline and body on the same line"""
 
 WAITLIST_URL = "https://docs.google.com/forms/d/1Zj8PQTNE3eI_rkjJKqu7gXtFN8kYcx1Whpera81b4PY/viewform"
 
