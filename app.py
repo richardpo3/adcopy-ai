@@ -573,12 +573,54 @@ elif st.session_state["page"] == "generator":
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Back to home"):
-        st.session_state["page"] = "landing"
-        st.rerun()
+    col_back, col_spacer = st.columns([1, 4])
+    with col_back:
+        if st.button("Back"):
+            st.session_state["page"] = "landing"
+            st.rerun()
 
-    if can_generate:
-        tab1, tab2 = st.tabs(["Type your product info", "Upload your product image"])
+    st.markdown("""
+    <div style="margin-bottom:2rem;">
+        <div style="font-size:1.6rem;font-weight:800;color:#f1f5f9;margin-bottom:0.3rem;">Generate your ads</div>
+        <div style="font-size:0.9rem;color:#64748b;">Describe your product and get 5 ready-to-run ad variations in seconds.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    left_col, right_col = st.columns([3, 2], gap="large")
+
+    with right_col:
+        st.markdown("""
+        <div style="background:#13141e;border:1px solid #1e1f2e;border-radius:14px;padding:1.5rem;position:sticky;top:1rem;">
+            <div style="font-size:0.7rem;font-weight:700;color:#6366f1;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">What you'll get</div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:0.3rem;">1. Curiosity Hook</div>
+                <div style="font-size:0.78rem;color:#64748b;">Grabs attention with an unexpected angle</div>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:0.3rem;">2. Problem → Solution</div>
+                <div style="font-size:0.78rem;color:#64748b;">Speaks to the pain, positions your product as the fix</div>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:0.3rem;">3. Social Proof</div>
+                <div style="font-size:0.78rem;color:#64748b;">Builds trust with crowd validation</div>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:0.3rem;">4. Urgency / Scarcity</div>
+                <div style="font-size:0.78rem;color:#64748b;">Creates pressure to act now</div>
+            </div>
+            <div>
+                <div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:0.3rem;">5. Direct Benefit</div>
+                <div style="font-size:0.78rem;color:#64748b;">States exactly what the buyer gets</div>
+            </div>
+            <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #1e1f2e;">
+                <div style="font-size:0.7rem;color:#64748b;">Each ad includes a headline + 2-3 sentence body ready to paste into Ads Manager.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with left_col:
+        if can_generate:
+            tab1, tab2 = st.tabs(["Type your product info", "Upload your product image"])
 
         with tab1:
             with st.form("ad_form"):
@@ -674,16 +716,16 @@ elif st.session_state["page"] == "generator":
                     except Exception as e:
                         st.error(f"Could not analyze image: {e}")
 
-    else:
-        st.markdown("""
-        <div class="upgrade-box">
-            <div class="upgrade-title">You've used your 3 free generations</div>
-            <div class="upgrade-sub">Upgrade to Pro for unlimited ad copy — any product, any time.</div>
-            <div class="upgrade-price">$9<span style="font-size:1rem;font-weight:500;color:#64748b">/month</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Upgrade to Pro"):
-            start_checkout(stripe_price_id)
+        else:
+            st.markdown("""
+            <div class="upgrade-box">
+                <div class="upgrade-title">You've used your 3 free generations</div>
+                <div class="upgrade-sub">Upgrade to Pro for unlimited ad copy — any product, any time.</div>
+                <div class="upgrade-price">$9<span style="font-size:1rem;font-weight:500;color:#64748b">/month</span></div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("Upgrade to Pro"):
+                start_checkout(stripe_price_id)
 
     if st.session_state["last_result"]:
         if st.session_state.get("uploaded_image"):
